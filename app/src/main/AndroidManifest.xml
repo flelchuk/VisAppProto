@@ -37,6 +37,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.christian.vappprotoneu.MainActivity" />
         </activity>
+        <activity
+            android:name=".ShowContactActivity"
+            android:label="@string/title_activity_show_contact"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

@@ -1,6 +1,7 @@
 package com.example.christian.vappprotoneu;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
@@ -61,6 +62,12 @@ public class ScanActivity extends AppCompatActivity implements ZXingScannerView.
         mScannerView.stopCamera();
     }
 
+    public void goShowContact()//View view)
+    {
+        Intent intent = new Intent(this, ShowContactActivity.class);
+        startActivity(intent);
+    }
+
     public void done(View view)
     {
         finish();
@@ -68,12 +75,12 @@ public class ScanActivity extends AppCompatActivity implements ZXingScannerView.
 
     //@Override
     public void handleResult(Result rawResult) {
-        new AlertDialog.Builder(this)
+        /*new AlertDialog.Builder(this)
                 .setTitle("QR Code")
                 .setMessage(rawResult.toString())
                 .setPositiveButton("OK", null)
-                .show();
-
+                .show();*/
+        goShowContact();
         // Note:
         // * Wait 2 seconds to resume the preview.
         // * On older devices continuously stopping and resuming camera preview can result in freezing the app.

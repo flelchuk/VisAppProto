@@ -6,4 +6,5 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
 
     <string name="title_activity_display">DisplayActivity</string>
+    <string name="title_activity_show_contact">ShowContactActivity</string>
 </resources>
