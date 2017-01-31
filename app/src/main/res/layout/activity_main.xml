@@ -8,19 +8,6 @@
     android:background="#0099cc"
     tools:context="com.example.christian.vappprotoneu.MainActivity">
 
-    <TextView
-        android:text="TextView"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_weight="0.01"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textStyle="normal|bold"
-        android:textAlignment="center" />
-
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -32,16 +19,17 @@
             android:layout_width="match_parent"
             android:id="@+id/button"
             android:layout_weight="1"
-            android:onClick="goDisplay"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:onClick="goDisplay" />
 
         <Button
             android:text="Karte nehmen"
             android:layout_width="match_parent"
             android:id="@+id/button2"
             android:layout_weight="1"
-            android:onClick="goScan"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:onClick="goScan" />
+
     </LinearLayout>
 
 </LinearLayout>

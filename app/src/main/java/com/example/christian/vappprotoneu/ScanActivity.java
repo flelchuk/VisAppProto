@@ -1,6 +1,7 @@
 package com.example.christian.vappprotoneu;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
@@ -17,7 +18,9 @@ import com.google.zxing.Result;
 
 import java.util.ArrayList;
 
+import ezvcard.io.text.VCardReader;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
+import ezvcard.*;
 
 public class ScanActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
     private ZXingScannerView mScannerView;
@@ -53,7 +56,7 @@ public class ScanActivity extends AppCompatActivity implements ZXingScannerView.
     public void onResume() {
         super.onResume();
         mScannerView.setResultHandler(this);
-        mScannerView.startCamera();
+        mScannerView.startCamera(0);
     }
 
     @Override
@@ -62,9 +65,10 @@ public class ScanActivity extends AppCompatActivity implements ZXingScannerView.
         mScannerView.stopCamera();
     }
 
-    public void goShowContact()//View view)
+    public void goShowContact(String v)
     {
         Intent intent = new Intent(this, ShowContactActivity.class);
+        intent.putExtra("vcard", v);
         startActivity(intent);
     }
 
@@ -80,7 +84,42 @@ public class ScanActivity extends AppCompatActivity implements ZXingScannerView.
                 .setMessage(rawResult.toString())
                 .setPositiveButton("OK", null)
                 .show();*/
-        goShowContact();
+
+        VCardReader rdr = new VCardReader(rawResult.toString());
+
+        try {
+            String singleVCard = null;
+
+            try {
+                VCard v = rdr.readNext();
+                if (v != null)
+                    singleVCard = v.write();
+            }
+            finally
+            {
+                rdr.close();
+            }
+
+            if (singleVCard != null)
+                goShowContact(rawResult.toString());
+            else {
+                new AlertDialog.Builder(this)
+                        .setTitle("Error")
+                        .setMessage("Failed to read VCard.")
+                        .setPositiveButton("OK", null)
+                        .show();
+            }
+        }
+        catch (java.io.IOException ioe)
+        {
+            new AlertDialog.Builder(this)
+                    .setTitle("Error")
+                    .setMessage(ioe.getMessage())
+                    .setPositiveButton("OK", null)
+                    .show();
+        }
+
+
         // Note:
         // * Wait 2 seconds to resume the preview.
         // * On older devices continuously stopping and resuming camera preview can result in freezing the app.

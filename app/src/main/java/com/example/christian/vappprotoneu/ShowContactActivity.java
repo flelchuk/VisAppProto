@@ -23,22 +23,46 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
 
-public class ShowContactActivity extends AppCompatActivity {
+import ezvcard.VCard;
+import ezvcard.io.text.VCardReader;
 
-    private void exportContact(String vcardstr) {
+public class ShowContactActivity extends AppCompatActivity {
+    private Profile m_Profile;
+
+    private void loadProfile(String v)
+    {
+        m_Profile = null;
+        VCardReader rdr = new VCardReader(v);
+
+        try
+        {
+            try {
+
+                VCard vcard = rdr.readNext();
+                // should be non-null :-)
+
+                m_Profile = new Profile(vcard);
+
+                // update UI
+                TextView tv = (TextView)findViewById(R.id.textView3);
+                tv.setText(vcard.write());
+
+            }
+            finally
+            {
+                rdr.close();
+            }
+        }
+        catch (java.io.IOException ioe) {
+            // should not happen :-)
+        }
+    }
+
+    public void exportContact(View view) {
 
         //TODO: String parsen, vermutlich an anderer Stelle sinnvoller
 
         final int REQUEST_PERMISSION_WRITE_CONTACTS=1;
-
-        String DisplayName  = "Max Mustermann";
-        String MobileNumber = "0172112233";
-        String HomeNumber   = "0202445566";
-        String WorkNumber   = "0202778899";
-        String emailID      = "mustermann@musterisp.de";
-        String company      = "Musterfirma AG";
-        String jobTitle     = "CEO";
-        String Address      = "Musterstrasse 12";
 
         //Wenn APILevel < 23, dann Rechte bei Installation erhalten,
         //sonst muss waehrend der  Laufzeit angefordert werden
@@ -52,121 +76,48 @@ public class ShowContactActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.WRITE_CONTACTS},
                     REQUEST_PERMISSION_WRITE_CONTACTS);
         }
-        if (DisplayName != null && !DisplayName.equals(""))
-        {
-            //Liste an auszufuehrenden Operationen anlegen
-            ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-            //Kontakt anlegen
-            ops.add(ContentProviderOperation.newInsert(
-                    ContactsContract.RawContacts.CONTENT_URI)
-                    .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
-                    .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
-                    .build());
 
-            //Name
-            ops.add(ContentProviderOperation.newInsert(
-                    ContactsContract.Data.CONTENT_URI)
-                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                    .withValue(ContactsContract.Data.MIMETYPE,
-                            ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
-                    .withValue(
-                            ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
-                            DisplayName).build());
+        //Liste an auszufuehrenden Operationen anlegen
+        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-            //Nummer Handy
-            if (MobileNumber != null && !MobileNumber.equals("")) {
-                ops.add(ContentProviderOperation.
-                        newInsert(ContactsContract.Data.CONTENT_URI)
-                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                        .withValue(ContactsContract.Data.MIMETYPE,
-                                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, MobileNumber)
-                        .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
-                                ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
-                        .build());
-            }
+        //Kontakt anlegen
+        ops.add(ContentProviderOperation.newInsert(
+                ContactsContract.RawContacts.CONTENT_URI)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                .build());
 
-            //Nummer Festnetz
-            if (HomeNumber != null && !HomeNumber.equals("")) {
-                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                        .withValue(ContactsContract.Data.MIMETYPE,
-                                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, HomeNumber)
-                        .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
-                                ContactsContract.CommonDataKinds.Phone.TYPE_HOME)
-                        .build());
-            }
+        m_Profile.exportContact(ops, 0);
 
-            //Nummer Arbeit
-            if (WorkNumber != null && !WorkNumber.equals("")) {
-                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                        .withValue(ContactsContract.Data.MIMETYPE,
-                                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, WorkNumber)
-                        .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
-                                ContactsContract.CommonDataKinds.Phone.TYPE_WORK)
-                        .build());
-            }
-
-            //EMail
-            if (emailID != null && emailID.equals("")) {
-                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                        .withValue(ContactsContract.Data.MIMETYPE,
-                                ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
-                        .withValue(ContactsContract.CommonDataKinds.Email.DATA, emailID)
-                        .withValue(ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK)
-                        .build());
-            }
-
-            //Firma
-            if (!company.equals("") && !jobTitle.equals("")) {
-                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                        .withValue(ContactsContract.Data.MIMETYPE,
-                                ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE)
-                        .withValue(ContactsContract.CommonDataKinds.Organization.COMPANY, company)
-                        .withValue(ContactsContract.CommonDataKinds.Organization.TYPE, ContactsContract.CommonDataKinds.Organization.TYPE_WORK)
-                        .withValue(ContactsContract.CommonDataKinds.Organization.TITLE, jobTitle)
-                        .withValue(ContactsContract.CommonDataKinds.Organization.TYPE, ContactsContract.CommonDataKinds.Organization.TYPE_WORK)
-                        .build());
-            }
-
-            //Adresse
-            if (Address != null && !Address.equals(""))
-            {
-                ops.add(ContentProviderOperation.newInsert(
-                        ContactsContract.Data.CONTENT_URI)
-                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                        .withValue(ContactsContract.Data.MIMETYPE,
-                                ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
-                        .withValue(
-                                ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS,
-                                Address).build());
-            }
-
-            // Liste mit Befehlen an Contact Provider ubergeben
-            try {
-                getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
-                Toast.makeText(getApplicationContext(), "Kontakt " + DisplayName + " exportiert", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                e.printStackTrace();
-                //Toast.makeText(getApplicationContext(), "Fehler: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                Toast.makeText(getApplicationContext(), "Fehler", Toast.LENGTH_SHORT).show();
-                //Log.i("EXE",e.getMessage());
-            }
+        // Liste mit Befehlen an Contact Provider ubergeben
+        try {
+            getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+            Toast.makeText(getApplicationContext(), "Kontakt " + m_Profile.DisplayName() + " exportiert", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            //Toast.makeText(getApplicationContext(), "Fehler: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Fehler", Toast.LENGTH_SHORT).show();
+            //Log.i("EXE",e.getMessage());
         }
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_contact);
+        /*
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        */
 
+        String v = (String)getIntent().getExtras().get("vcard");
+        loadProfile(v);
+    }
+
+    public void done(View view)
+    {
+        finish();
     }
 
 }

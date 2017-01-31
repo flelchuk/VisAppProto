@@ -18,16 +18,10 @@ import java.util.Random;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 public class MainActivity extends AppCompatActivity {
-    public static int randomID = 0;
-
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.activity_main);
-
-        randomID = new Random(Calendar.getInstance().getTimeInMillis()).nextInt(1000);
-        TextView textView = (TextView)findViewById(R.id.textView);
-        textView.setText(String.format("Ihre Benutzer-ID: %d", randomID));
     }
 
     public void goScan(View view)
